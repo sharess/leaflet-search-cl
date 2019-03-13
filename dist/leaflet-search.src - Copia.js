@@ -1,7 +1,7 @@
 /* 
- * Leaflet Control Search v2.9.7 - 2018-10-11 
+ * Leaflet Control Search v2.9.7 - 2019-01-14 
  * 
- * Copyright 2018 Stefano Cudini 
+ * Copyright 2019 Stefano Cudini 
  * stefano.cudini@gmail.com 
  * http://labs.easyblog.it/ 
  * 
@@ -99,7 +99,7 @@ L.Control.Search = L.Control.extend({
 		autoCollapseTime: 1200,			//delay for autoclosing alert and collapse after blur
 		textErr: 'Location not found',	//error message
 		textCancel: 'Cancel',		    //title in cancel button		
-		textPlaceholder: '',   //placeholder value			
+		textPlaceholder: 'Search...',   //placeholder value			
 		hideMarkerOnCollapse: false,    //remove circle and marker on search control collapsed		
 		position: 'topleft',		
 		marker: {						//custom L.Marker or false for hide
@@ -154,7 +154,7 @@ L.Control.Search = L.Control.extend({
 		this._tooltip = this._createTooltip('search-tooltip');
 		this._cancel = this._createCancel(this.options.textCancel, 'search-cancel');
 		this._button = this._createButton(this.options.textPlaceholder, 'search-button');
-		//this._alert = this._createAlert('search-alert'); _fdg_
+		this._alert = this._createAlert('search-alert');
 
 		if(this.options.collapsed===false)
 			this.expand(this.options.collapsed);
@@ -199,6 +199,11 @@ L.Control.Search = L.Control.extend({
 		// 		'layeradd': this._onLayerAddRemove,
 		// 		'layerremove': this._onLayerAddRemove
 		// 	}, this);
+		map.off({
+			// 		'layeradd': this._onLayerAddRemove,
+			// 		'layerremove': this._onLayerAddRemove
+			'resize': this._handleAutoresize
+			}, this);
 	},
 
 	// _onLayerAddRemove: function(e) {
@@ -218,12 +223,12 @@ L.Control.Search = L.Control.extend({
 	showAlert: function(text) {
 		var self = this;
 		text = text || this.options.textErr;
-		//this._alert.style.display = 'block'; _fdg_
-		//this._alert.innerHTML = text;        _fdg_
+		this._alert.style.display = 'block';
+		this._alert.innerHTML = text;
 		clearTimeout(this.timerAlert);
 		
 		this.timerAlert = setTimeout(function() {
-			//self.hideAlert(); _fdg_
+			self.hideAlert();
 		},this.options.autoCollapseTime);
 		return this;
 	},
@@ -259,7 +264,7 @@ L.Control.Search = L.Control.extend({
 	collapse: function() {
 		this._hideTooltip();
 		this.cancel();
-		//this._alert.style.display = 'none'; _fdg_
+		this._alert.style.display = 'none';
 		this._input.blur();
 		if(this.options.collapsed)
 		{
@@ -297,7 +302,7 @@ L.Control.Search = L.Control.extend({
 
 		L.DomEvent
 			.on(alert, 'click', L.DomEvent.stop, this)
-			//.on(alert, 'click', this.hideAlert, this); _fdg_
+			.on(alert, 'click', this.hideAlert, this);
 
 		return alert;
 	},
@@ -396,33 +401,6 @@ L.Control.Search = L.Control.extend({
 		else
 		{
 			tip = L.DomUtil.create('li', '');
-			
-			var spli = text.match(/[^,]+(\,[^,]+)?/g);
-			
-			
-			if(text != "undefined") {
-			    text = spli[0]; // _fdg_
-			}
-			
-			if(spli[1] != undefined)
-			   text+="<br />"+spli[1];
-		    if(spli[2] != undefined)
-			   text+= "<br />"+spli[2];
-		    if(spli[3] != undefined)
-			   text+= ","+spli[3];
-			for(var i=4;i<spli.length;i++){
-				
-			if(spli[i] == undefined)
-			   {
-			      break;	
-			   }
-		    else
-			   {
-			   text += ","+spli[i];
-			   
-			   }
-			}
-			
 			tip.innerHTML = text;
 		}
 		
@@ -434,7 +412,6 @@ L.Control.Search = L.Control.extend({
 				.disableClickPropagation(tip)		
 				.on(tip, 'click', L.DomEvent.stop, this)
 				.on(tip, 'click', function(e) {
-					text = text.split("<br />").join(','); // _fdg_
 					this._input.value = text;
 					this._handleAutoresize();
 					this._input.focus();
@@ -488,9 +465,8 @@ L.Control.Search = L.Control.extend({
 					break;
 				
 				this._countertips++;
-				if(key != "undefined"){
-                this._tooltip.appendChild( this._createTip(key, records[key]) );
-				}
+
+				this._tooltip.appendChild( this._createTip(key, records[key]) );
 			}
 		}
 		
@@ -598,7 +574,7 @@ L.Control.Search = L.Control.extend({
       }
       else {
         //throw new Error("propertyName '"+propName+"' not found in marker"); 
-         
+        console.warn("propertyName '"+propName+"' not found in marker"); 
       }
     }
     else if(layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon)
@@ -617,7 +593,7 @@ L.Control.Search = L.Control.extend({
       }
       else {
         //throw new Error("propertyName '"+propName+"' not found in shape"); 
-         
+        console.warn("propertyName '"+propName+"' not found in shape"); 
       }
     }
     else if(layer.hasOwnProperty('feature'))//GeoJSON
@@ -633,12 +609,12 @@ L.Control.Search = L.Control.extend({
           loc.layer = layer;			
           retRecords[ layer.feature.properties[propName] ] = loc;
         } else {
-          
+          console.warn("Unknown type of Layer");
         }
       }
       else {
         //throw new Error("propertyName '"+propName+"' not found in feature");
-         
+        console.warn("propertyName '"+propName+"' not found in feature"); 
       }
     }
     else if(layer instanceof L.LayerGroup)
@@ -881,7 +857,7 @@ L.Control.Search = L.Control.extend({
 
 		this._hideAutoType();
 		
-		//this.hideAlert(); _fdg_
+		this.hideAlert();
 		this._hideTooltip();
 
 		if(this._input.style.display == 'none')	//on first click show _input only
