@@ -1,10 +1,10 @@
 {
-  "name": "leaflet-search",
+  "name": "leaflet-search-cl",
   "version": "2.9.8",
   "description": "Leaflet Control for searching markers/features by attribute on map or remote searching in jsonp/ajax",
   "repository": {
     "type": "git",
-    "url": "git@github.com:stefanocudini/leaflet-search.git"
+    "url": "git@github.com:sharess/leaflet-search-cl.git"
   },
   "homepage": "http://labs.easyblog.it/maps/leaflet-search/",
   "author": {
@@ -20,7 +20,7 @@
     "leaflet"
   ],
   "dependencies": {
-    "leaflet": "*"
+    "leaflet-cl": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
