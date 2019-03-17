@@ -25,7 +25,7 @@ Tested in Leaflet 0.7.x and 1.3.x
 
 # Install
 ```
-npm install --save leaflet-search
+npm install --save leaflet-search-cl
 ```
 # Options
 | Option	  | Default  | Description                       |
